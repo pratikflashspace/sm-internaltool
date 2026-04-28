@@ -31,7 +31,7 @@ export interface ParsedDate {
   month: string
   year: number
   yearWords: string
-  short: string // e.g. "28/Apr/2026"
+  short: string // e.g. "28/4/2026"
 }
 
 export function parseDate(dateStr: string): ParsedDate | null {
@@ -47,7 +47,7 @@ export function parseDate(dateStr: string): ParsedDate | null {
     month,
     year,
     yearWords: numberToWords(year),
-    short: `${day}/${month.slice(0,3)}/${year}`,
+    short: `${day}/${d.getMonth() + 1}/${year}`,
   }
 }
 
