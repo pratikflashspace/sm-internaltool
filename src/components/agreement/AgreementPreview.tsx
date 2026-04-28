@@ -29,7 +29,7 @@ export function AgreementPreview({ data }: Props) {
     : <>The user shall pay a membership fee of <Fill val={fee ? `"${fee}"` : ''} placeholder="Membership Fee" /> plus additional taxes. After 11 months, the payment will be made again. The agreement is recurring in nature and gets renewed automatically.</>
 
   return (
-    <div className="font-[Arial,sans-serif] text-[11pt] text-[#111] leading-relaxed">
+    <div style={{fontFamily:"'Inter', Arial, sans-serif", fontSize:"11pt", color:"hsl(0 0% 7%)", lineHeight:1.6}}>
 
       {/* Title */}
       <p className="text-center font-bold underline text-[13pt] mb-4">LEAVE &amp; LICENSE AGREEMENT</p>

@@ -1,90 +1,68 @@
 'use client'
 import { Button } from '@/components/ui'
-import { buildGDocsPayload } from '@/lib/agreement/helpers'
-import type { AgreementFormData } from '@/types'
-import type { GDocResult } from '@/types'
-import { Printer, FileText, Mail, MessageCircle, RotateCcw, ExternalLink } from 'lucide-react'
+import type { AgreementFormData, GDocResult } from '@/types'
+import { Printer, FileText, Mail, MessageCircle, RotateCcw, ExternalLink, CheckCircle2 } from 'lucide-react'
 
 interface Props {
-  data: AgreementFormData
-  filledCount: number
-  totalFields: number
-  gdocResult: GDocResult | null
-  gdocLoading: boolean
+  data: AgreementFormData; filledCount: number; totalFields: number
+  gdocResult: GDocResult | null; gdocLoading: boolean
   onReset: () => void
   onGenerateDoc: () => Promise<GDocResult | { error: string }>
-  onSendEmail: () => void
-  onSendWhatsApp: () => void
-  onPrint: () => void
+  onSendEmail: () => void; onSendWhatsApp: () => void; onPrint: () => void
 }
 
-export function AgreementActions({ data, filledCount, totalFields, gdocResult, gdocLoading, onReset, onGenerateDoc, onSendEmail, onSendWhatsApp, onPrint }: Props) {
-  const pct = Math.round((filledCount / totalFields) * 100)
-
+export function AgreementActions({ filledCount, totalFields, gdocResult, gdocLoading, onReset, onGenerateDoc, onSendEmail, onSendWhatsApp, onPrint }: Props) {
   return (
-    <div className="flex flex-col gap-3">
-      {/* Progress */}
-      <div>
-        <div className="flex justify-between items-center mb-1.5">
-          <span className="text-[10px] font-bold text-[#8e9aab] uppercase tracking-widest">Fields filled</span>
-          <span className="text-[10px] font-bold text-[#1ABCB0]">{filledCount}/{totalFields}</span>
-        </div>
-        <div className="h-1 bg-[#e0e4e8] rounded-full overflow-hidden">
-          <div
-            className="h-full bg-[#1ABCB0] rounded-full transition-all duration-300"
-            style={{ width: `${pct}%` }}
-          />
-        </div>
+    <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
+      {/* Buttons row */}
+      <div style={{ display: 'flex', gap: 6 }}>
+        <Button variant="secondary" size="sm" onClick={onPrint} style={{ flex: 1, justifyContent: 'center' }}>
+          <Printer size={12} strokeWidth={1.75} /> Print PDF
+        </Button>
+        <Button variant="ghost" size="sm" onClick={onReset} title="Clear form" style={{ width: 32, padding: 0, flexShrink: 0 }}>
+          <RotateCcw size={12} strokeWidth={1.75} />
+        </Button>
       </div>
 
-      {/* Print */}
-      <Button variant="secondary" size="sm" onClick={onPrint} className="w-full">
-        <Printer size={13} /> Print / Save as PDF
-      </Button>
-
-      {/* Generate Google Doc */}
-      <Button
-        variant="primary" size="sm"
-        onClick={onGenerateDoc}
-        loading={gdocLoading}
-        className="w-full"
-      >
-        <FileText size={13} /> {gdocResult?.success ? 'Re-Generate Google Doc' : 'Generate Google Doc'}
+      {/* Generate Doc */}
+      <Button variant="black" size="md" onClick={onGenerateDoc as any} loading={gdocLoading} style={{ width: '100%', justifyContent: 'center', fontSize: 13 }}>
+        <FileText size={13} strokeWidth={1.75} />
+        {gdocResult?.success ? 'Re-generate Google Doc' : 'Generate Google Doc'}
       </Button>
 
       {/* Doc result */}
       {gdocResult && (
-        <div className={`rounded-md p-3 text-xs border ${gdocResult.success ? 'bg-[#e6faf9] border-[#1ABCB0]' : 'bg-red-50 border-red-200'}`}>
+        <div className="fade-in-up" style={{
+          borderRadius: 6, padding: '10px 12px',
+          background: gdocResult.success ? 'hsl(174 67% 94%)' : 'hsl(0 76% 97%)',
+          border: `1px solid ${gdocResult.success ? 'hsl(174 56% 78%)' : 'hsl(0 76% 88%)'}`,
+        }}>
           {gdocResult.success ? (
             <>
-              <p className="font-bold text-[#1ABCB0] uppercase tracking-wide text-[9px] mb-1.5">Google Doc Created ✓</p>
-              <a
-                href={gdocResult.url}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="text-[#0f9c92] font-mono text-[10px] flex items-center gap-1 hover:underline break-all"
-              >
-                <ExternalLink size={10} /> {gdocResult.url}
+              <div style={{ display: 'flex', alignItems: 'center', gap: 5, marginBottom: 6 }}>
+                <CheckCircle2 size={11} color="hsl(174 82% 33%)" strokeWidth={2} />
+                <span style={{ fontSize: 10, fontWeight: 700, color: 'hsl(174 82% 33%)', fontFamily: "'JetBrains Mono',monospace", letterSpacing: '0.06em', textTransform: 'uppercase' }}>
+                  Doc created
+                </span>
+              </div>
+              <a href={gdocResult.url} target="_blank" rel="noopener noreferrer"
+                style={{ display: 'flex', alignItems: 'center', gap: 4, fontSize: 10, color: 'hsl(174 82% 33%)', fontFamily: "'JetBrains Mono',monospace", wordBreak: 'break-all', marginBottom: 8, textDecoration: 'none' }}>
+                <ExternalLink size={9} /> Open in Google Docs
               </a>
-              <div className="flex gap-2 mt-2.5">
-                <Button variant="primary" size="sm" onClick={onSendEmail} className="flex-1 text-[11px]">
-                  <Mail size={11} /> Email
+              <div style={{ display: 'flex', gap: 6 }}>
+                <Button variant="primary" size="sm" onClick={onSendEmail} style={{ flex: 1, justifyContent: 'center', background: '#0072C6', fontSize: 11 }}>
+                  <Mail size={10} strokeWidth={1.75} /> Email
                 </Button>
-                <Button size="sm" onClick={onSendWhatsApp} className="flex-1 bg-[#25D366] hover:bg-[#1da651] text-white text-[11px]">
-                  <MessageCircle size={11} /> WhatsApp
+                <Button variant="whatsapp" size="sm" onClick={onSendWhatsApp} style={{ flex: 1, justifyContent: 'center', fontSize: 11 }}>
+                  <MessageCircle size={10} strokeWidth={1.75} /> WhatsApp
                 </Button>
               </div>
             </>
           ) : (
-            <p className="text-red-600">⚠ {gdocResult.error}</p>
+            <p style={{ fontSize: 11, color: 'hsl(0 76% 57%)', fontFamily: "'Inter',sans-serif" }}>⚠ {gdocResult.error}</p>
           )}
         </div>
       )}
-
-      {/* Reset */}
-      <Button variant="ghost" size="sm" onClick={onReset} className="w-full text-[#8e9aab]">
-        <RotateCcw size={12} /> Clear Form
-      </Button>
     </div>
   )
 }

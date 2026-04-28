@@ -14,7 +14,7 @@ export function AgreementForm({ data, update }: Props) {
       {/* Agreement Details */}
       <section>
         <SectionLabel>Agreement Details</SectionLabel>
-        <div className="flex flex-col gap-3">
+        <div className="flex flex-col gap-2.5">
           <Input label="Agreement Date" type="date" required value={data.agrDate} onChange={e => update('agrDate', e.target.value)} />
           <Select
             label="Room Number" required
@@ -33,7 +33,7 @@ export function AgreementForm({ data, update }: Props) {
       {/* Company */}
       <section>
         <SectionLabel>Company & Director</SectionLabel>
-        <div className="flex flex-col gap-3">
+        <div className="flex flex-col gap-2.5">
           <Input
             label="Company Name" required
             value={data.company}
@@ -104,7 +104,7 @@ export function AgreementForm({ data, update }: Props) {
       {/* Plan & Fee */}
       <section>
         <SectionLabel>Membership / Plan</SectionLabel>
-        <div className="flex flex-col gap-3">
+        <div className="flex flex-col gap-2.5">
           <RadioGroup
             label="Plan Type" required
             name="planType"
@@ -149,7 +149,7 @@ export function AgreementForm({ data, update }: Props) {
       {/* Client Contact */}
       <section>
         <SectionLabel>Client Contact</SectionLabel>
-        <div className="flex flex-col gap-3">
+        <div className="flex flex-col gap-2.5">
           <Input
             label="Client Email" required type="email"
             value={data.clientEmail}

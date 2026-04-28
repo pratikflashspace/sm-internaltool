@@ -1,93 +1,108 @@
 'use client'
 import { useRef } from 'react'
 import { useAgreementForm } from '@/components/agreement/useAgreementForm'
-import { AgreementForm } from '@/components/agreement/AgreementForm'
+import { AgreementForm }    from '@/components/agreement/AgreementForm'
 import { AgreementPreview } from '@/components/agreement/AgreementPreview'
 import { AgreementActions } from '@/components/agreement/AgreementActions'
+import { TopBar }           from '@/components/layout/TopBar'
 
 export default function NewAgreementPage() {
-  const { data, update, reset, filledCount, totalFields, gdocResult, gdocLoading, generateDoc, sendEmail, sendWhatsApp } = useAgreementForm()
+  const form = useAgreementForm()
   const previewRef = useRef<HTMLDivElement>(null)
+  const pct = Math.round((form.filledCount / form.totalFields) * 100)
 
   function handlePrint() {
     const content = previewRef.current?.innerHTML
     if (!content) return
-    const win = window.open('', '_blank', 'width=900,height=700')
+    const win = window.open('', '_blank', 'width=860,height=700')
     if (!win) return
     win.document.write(`<!DOCTYPE html><html><head>
-      <title>SM Agreement — ${data.company || 'Agreement'}</title>
+      <title>SM Agreement — ${form.data.company || 'Agreement'}</title>
+      <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
       <style>
         @page { margin: 1in; size: A4; }
         * { box-sizing: border-box; margin: 0; padding: 0; }
-        body { font-family: Arial, sans-serif; font-size: 11pt; line-height: 1.6; color: #111; padding: 0; }
-        ul { margin-left: 20px; margin-bottom: 8px; }
-        li { margin-bottom: 3px; }
+        body { font-family: 'Inter', Arial, sans-serif; font-size: 11pt; line-height: 1.6; color: #111; }
+        ul { margin-left: 20px; margin-bottom: 8px; } li { margin-bottom: 4px; }
         p { margin-bottom: 8px; text-align: justify; }
-        .text-center { text-align: center; }
-        .text-right { text-align: right; }
-        strong { font-weight: 700; }
-        .border-t-2 { border-top: 2px solid #eee; margin-top: 24px; padding-top: 16px; }
+        strong { font-weight: 600; }
       </style>
     </head><body>${content}<script>window.onload=function(){window.print()}<\/script></body></html>`)
     win.document.close()
   }
 
   return (
-    <div className="flex h-screen overflow-hidden bg-[#f4f6f8]">
+    <div style={{ display: 'flex', flexDirection: 'column', height: '100vh', overflow: 'hidden' }}>
+      <TopBar
+        title="Agreement Generator"
+        subtitle="Leave & License"
+        right={
+          <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+            <div style={{ width: 80, height: 3, background: 'hsl(36 16% 87%)', borderRadius: 2, overflow: 'hidden' }}>
+              <div style={{ width: `${pct}%`, height: '100%', background: 'hsl(174 76% 42%)', borderRadius: 2, transition: 'width 300ms ease' }} />
+            </div>
+            <span style={{ fontSize: 11, fontWeight: 700, color: 'hsl(174 76% 42%)', fontFamily: "'JetBrains Mono',monospace" }}>
+              {form.filledCount}/{form.totalFields}
+            </span>
+          </div>
+        }
+      />
 
-      {/* LEFT: Form */}
-      <div className="w-[320px] shrink-0 flex flex-col bg-white border-r border-[#e0e4e8] overflow-hidden">
+      <div style={{ display: 'flex', flex: 1, overflow: 'hidden' }}>
+        {/* ── LEFT: Form panel ── */}
+        <div style={{
+          width: 304, flexShrink: 0, display: 'flex', flexDirection: 'column',
+          background: '#fff', borderRight: '1px solid hsl(36 16% 87%)', overflow: 'hidden',
+        }}>
+          {/* Scrollable form */}
+          <div style={{ flex: 1, overflowY: 'auto', padding: '20px 18px' }}>
+            <AgreementForm data={form.data} update={form.update} />
+          </div>
 
-        {/* Header */}
-        <div className="px-4 py-3 border-b border-[#f0f2f4] shrink-0 flex items-center gap-3">
-          <div className="w-8 h-8 bg-[#e6faf9] rounded-md flex items-center justify-center text-sm shrink-0">📋</div>
-          <div>
-            <p className="text-[13px] font-bold text-[#0a0a0a]">Agreement Generator</p>
-            <p className="text-[9px] text-[#1ABCB0] uppercase tracking-widest font-mono font-bold">Leave & License</p>
+          {/* Pinned actions */}
+          <div style={{ flexShrink: 0, padding: '14px 18px', borderTop: '1px solid hsl(42 15% 94%)', background: 'hsl(48 17% 98%)' }}>
+            <AgreementActions
+              data={form.data}
+              filledCount={form.filledCount}
+              totalFields={form.totalFields}
+              gdocResult={form.gdocResult}
+              gdocLoading={form.gdocLoading}
+              onReset={form.reset}
+              onGenerateDoc={form.generateDoc}
+              onSendEmail={form.sendEmail}
+              onSendWhatsApp={form.sendWhatsApp}
+              onPrint={handlePrint}
+            />
           </div>
         </div>
 
-        {/* Form */}
-        <div className="flex-1 overflow-y-auto px-4 py-4">
-          <AgreementForm data={data} update={update} />
-        </div>
-
-        {/* Actions pinned bottom */}
-        <div className="shrink-0 px-4 py-3 border-t border-[#f0f2f4] bg-[#fafbfc]">
-          <AgreementActions
-            data={data}
-            filledCount={filledCount}
-            totalFields={totalFields}
-            gdocResult={gdocResult}
-            gdocLoading={gdocLoading}
-            onReset={reset}
-            onGenerateDoc={generateDoc}
-            onSendEmail={sendEmail}
-            onSendWhatsApp={sendWhatsApp}
-            onPrint={handlePrint}
-          />
-        </div>
-      </div>
-
-      {/* RIGHT: Live Preview */}
-      <div className="flex-1 flex flex-col overflow-hidden">
-
-        {/* Preview toolbar */}
-        <div className="shrink-0 px-5 py-2 bg-white border-b border-[#e0e4e8] flex items-center justify-between">
-          <div className="flex items-center gap-2">
-            <span className="w-2 h-2 rounded-full bg-[#1ABCB0] animate-pulse" />
-            <span className="text-[10px] font-bold text-[#8e9aab] uppercase tracking-widest">Live Preview</span>
+        {/* ── RIGHT: Live preview ── */}
+        <div style={{ flex: 1, display: 'flex', flexDirection: 'column', overflow: 'hidden', background: 'hsl(45 24% 97%)' }}>
+          {/* Preview toolbar */}
+          <div style={{
+            flexShrink: 0, height: 40, padding: '0 24px',
+            display: 'flex', alignItems: 'center', gap: 8,
+            borderBottom: '1px solid hsl(36 16% 87%)', background: 'hsl(48 17% 98%)',
+          }}>
+            <div className="pulse-dot" />
+            <span style={{ fontSize: 10, fontWeight: 700, color: 'hsl(217 14% 61%)', fontFamily: "'JetBrains Mono',monospace", letterSpacing: '0.08em', textTransform: 'uppercase' }}>
+              Live Preview
+            </span>
           </div>
-          <span className="text-[10px] font-bold text-[#1ABCB0]">{filledCount}/{totalFields} fields filled</span>
-        </div>
 
-        {/* Preview scroll area */}
-        <div className="flex-1 overflow-y-auto p-6">
-          {/* A4-like paper */}
-          <div className="max-w-[760px] mx-auto bg-white shadow-md rounded-sm border border-[#e0e4e8]"
-            style={{ minHeight: '1050px', padding: '60px 72px' }}>
-            <div ref={previewRef}>
-              <AgreementPreview data={data} />
+          {/* A4 paper */}
+          <div style={{ flex: 1, overflowY: 'auto', padding: '32px 48px' }}>
+            <div style={{
+              maxWidth: 720, margin: '0 auto',
+              background: '#fff', borderRadius: 4,
+              border: '1px solid hsl(36 16% 87%)',
+              boxShadow: '0 8px 24px rgba(0,0,0,0.10)',
+              minHeight: 1056, padding: '64px 72px',
+              fontFamily: "'Inter', Arial, sans-serif",
+            }}>
+              <div ref={previewRef}>
+                <AgreementPreview data={form.data} />
+              </div>
             </div>
           </div>
         </div>
