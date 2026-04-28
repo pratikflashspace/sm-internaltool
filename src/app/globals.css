@@ -1,0 +1,44 @@
+@import 'tailwindcss';
+
+@theme {
+  /* FlashSpace / Stirring Minds brand */
+  --color-brand:       #1ABCB0;
+  --color-brand-dark:  #0f9c92;
+  --color-brand-light: #e6faf9;
+  --color-ink:         #0a0a0a;
+  --color-surface:     #f4f6f8;
+  --color-white:       #ffffff;
+  --color-border:      #e0e4e8;
+  --color-muted:       #8e9aab;
+  --color-subtle:      #4a5568;
+
+  /* Typography */
+  --font-sans: 'Arial', system-ui, sans-serif;
+  --font-mono: 'Courier New', monospace;
+
+  /* Radius */
+  --radius-sm: 4px;
+  --radius-md: 6px;
+  --radius-lg: 10px;
+}
+
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+html {
+  font-family: var(--font-sans);
+  -webkit-font-smoothing: antialiased;
+}
+
+body {
+  background: var(--color-surface);
+  color: var(--color-ink);
+}
+
+/* Scrollbar */
+::-webkit-scrollbar { width: 5px; height: 5px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb { background: var(--color-border); border-radius: 3px; }
