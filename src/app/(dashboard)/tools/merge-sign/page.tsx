@@ -63,11 +63,10 @@ export default function MergeSignPage() {
       const mergedDoc = await PDFDocument.create()
 
       const eStampPages = await mergedDoc.copyPages(eStampDoc, eStampDoc.getPageIndices())
-      eStampPages.forEach(p => mergedDoc.addPage(p))
+      eStampPages.forEach((p: any) => mergedDoc.addPage(p))
 
       const draftPages = await mergedDoc.copyPages(draftDoc, draftDoc.getPageIndices())
-      draftPages.forEach(p => mergedDoc.addPage(p))
-
+      draftPages.forEach((p: any) => mergedDoc.addPage(p))
       const pages = mergedDoc.getPages()
       const total = pages.length
       const eStampCount = eStampDoc.getPageCount()
