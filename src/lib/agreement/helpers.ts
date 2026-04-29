@@ -215,7 +215,7 @@ export function buildGDocsPayload(data: AgreementFormData) {
     fee        : feeString(data),
     hideAmount : data.hideAmount,
     plan       : data.planType,
-    agrDate    : agrDate ? `${agrDate.ordDay} day of ${agrDate.month}, year ${agrDate.year}` : '[Date]',
+    agrDate    : agrDate ? `${agrDate.ordDay} day of ${agrDate.month}, year ${agrDate.year} ${agrDate.yearWords}` : '[Date]',
     nocDate    : nocDate ? nocDate.short : '[Date]',
     date       : data.agrDate || new Date().toISOString().slice(0,10),
     clientEmail: data.clientEmail,
