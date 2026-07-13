@@ -84,87 +84,29 @@ export default function MergeSignPage() {
       const gap  = 6
       const pairW = sigW * 2 + gap
 
-      // Page layout (8 pages total):
-      // Page 1 (index 0)         = e-Stamp
-      // Pages 2-6 (index 1-5)    = Agreement content
-      // Page 7 (index total-2)   = Witnesses (Pratik + Surabhi)
-      // Page 8 (index total-1)   = NOC Letter
-      // Page 6 (total-3)         = Director sign (Pranav)
-      // Page 7 (total-2)         = Witnesses (Pratik + Surabhi)
-      // Page 8 (total-1)         = NOC Letter
-
-      // ── STEP 4: Kanchan + Pranav on ALL pages except last (NOC) ──
-      addLog('Stamping Kanchan + Pranav on all pages except NOC…')
-      for (let i = 0; i < total - 1; i++) {
+      // ── STEP 4: Pranav on e-Stamp pages ONLY ──
+      addLog('Stamping Pranav on e-Stamp pages…')
+      for (let i = 0; i < eStampCount; i++) {
         const page = pages[i]
         const { width, height } = page.getSize()
-        const kDims = kanchanImg.scale(sigW / kanchanImg.width)
-        const pDims = pranavImg.scale(sigW / pranavImg.width)
+        
+        // Make it bigger
+        const pDims = pranavImg.scale((sigW * 1.5) / pranavImg.width)
 
         let startX: number
         if (position === 'left')       startX = margin
-        else if (position === 'right') startX = width - margin - pairW
-        else                           startX = (width - pairW) / 2
+        else if (position === 'right') startX = width - margin - (sigW * 1.5)
+        else                           startX = (width - (sigW * 1.5)) / 2
 
-        page.drawImage(kanchanImg, { x: startX, y: margin, width: kDims.width, height: kDims.height, opacity: 0.92 })
-        page.drawImage(pranavImg,  { x: startX + sigW + gap, y: margin, width: pDims.width, height: pDims.height, opacity: 0.92 })
+        // Move it left and up
+        page.drawImage(pranavImg, { 
+            x: startX - 40, // moved further left
+            y: margin + 140, // moved even more higher up
+            width: pDims.width, 
+            height: pDims.height, 
+            opacity: 0.92 
+        })
       }
-
-      // ── STEP 5: Page 6 (total-3) — Pranav Director sign ──
-      // X: 20% from left (-5%), Y: 80% from bottom (-5%)
-      addLog('Stamping Pranav director sign on page 6…')
-      const dirPage = pages[total - 3]
-      const { width: dw, height: dh } = dirPage.getSize()
-      const dSigW = sigW * 1.1
-      const pDirDims = pranavImg.scale(dSigW / pranavImg.width)
-      dirPage.drawImage(pranavImg, {
-        x: dw * 0.20, y: dh * 0.80 - pDirDims.height,
-        width: pDirDims.width, height: pDirDims.height, opacity: 0.92
-      })
-
-      // ── STEP 6: Page 7 (total-2) — Director + Witnesses ──
-      addLog('Stamping Pranav director + witnesses on page 7…')
-      const witnessPage = pages[total - 2]
-      const { width: ww, height: wh } = witnessPage.getSize()
-      const wSigW = sigW * 1.1
-
-      // Pranav — Director sign on page 7 (80% from bottom, 20% from left)
-      const pDirDims2 = pranavImg.scale(wSigW / pranavImg.width)
-      witnessPage.drawImage(pranavImg, {
-        x: ww * 0.20, y: wh * 0.80 - pDirDims2.height,
-        width: pDirDims2.width, height: pDirDims2.height, opacity: 0.92
-      })
-
-      const pDims2 = pratikImg.scale(wSigW / pratikImg.width)
-      witnessPage.drawImage(pratikImg, {
-        x: ww * 0.18, y: wh * 0.65 - pDims2.height,
-        width: pDims2.width, height: pDims2.height, opacity: 0.92
-      })
-
-      const sDims = surabhiImg.scale(wSigW / surabhiImg.width)
-      witnessPage.drawImage(surabhiImg, {
-        x: ww * 0.18, y: wh * 0.53 - sDims.height,
-        width: sDims.width, height: sDims.height, opacity: 0.92
-      })
-
-      // ── STEP 7: Page 8 (total-1) — NOC: Kanchan + Pranav ──
-      // X: 18% from left (-7%), Y: 60% / 51%
-      addLog('Stamping Kanchan + Pranav on NOC page (page 8)…')
-      const nocPage = pages[total - 1]
-      const { width: nw, height: nh } = nocPage.getSize()
-      const nSigW = sigW * 1.1
-
-      const kNocDims = kanchanImg.scale(nSigW / kanchanImg.width)
-      nocPage.drawImage(kanchanImg, {
-        x: nw * 0.18, y: nh * 0.62 - kNocDims.height,
-        width: kNocDims.width, height: kNocDims.height, opacity: 0.92
-      })
-
-      const pNocDims = pranavImg.scale(nSigW / pranavImg.width)
-      nocPage.drawImage(pranavImg, {
-        x: nw * 0.18, y: nh * 0.53 - pNocDims.height,
-        width: pNocDims.width, height: pNocDims.height, opacity: 0.92
-      })
 
       // ── STEP 7: Save ──
       addLog('Saving final PDF…')
@@ -304,9 +246,7 @@ export default function MergeSignPage() {
                 </div>
                 <div style={{ fontSize: 12, color: 'hsl(218 19% 35%)', fontFamily: "'Inter',sans-serif", marginBottom: 12, lineHeight: 1.6 }}>
                   ✓ e-Stamp + Agreement merged<br />
-                  ✓ Kanchan & Pranav on every page (incl. e-Stamp), except NOC<br />
-                  ✓ Pratik Dey & Surabhi Dewra on witness page<br />
-                  ✓ Kanchan & Pranav on NOC page
+                  ✓ Pranav stamped on e-Stamp pages only<br />
                 </div>
                 <Button variant="primary" size="md" onClick={download} style={{ justifyContent: 'center', width: '100%', fontSize: 13 }}>
                   <Download size={14} strokeWidth={1.75} /> Download Signed PDF
@@ -354,8 +294,8 @@ export default function MergeSignPage() {
             <div style={{ borderTop: '1px solid hsl(42 15% 94%)', paddingTop: 10 }}>
               <p style={{ fontSize: 10, fontWeight: 700, color: 'hsl(174 76% 42%)', fontFamily: "'JetBrains Mono',monospace", letterSpacing: '0.06em', textTransform: 'uppercase', marginBottom: 8 }}>Signatures</p>
               {[
-                { name: 'Kanchan Bhatia', key: 'kanchan', note: 'Every agr. page + NOC' },
-                { name: 'Pranav Bhatia',  key: 'pranav',  note: 'Every agr. page + NOC' },
+                { name: 'Kanchan Bhatia', key: 'kanchan', note: 'NOC page only' },
+                { name: 'Pranav Bhatia',  key: 'pranav',  note: 'Every agr. page (except witness) + NOC' },
                 { name: 'Pratik Dey',     key: 'pratik',  note: 'Witness page only' },
                 { name: 'Surabhi Dewra',  key: 'surabhi', note: 'Witness page only' },
               ].map(s => (

@@ -1,7 +1,7 @@
 'use client'
 import { useState, useRef, useCallback } from 'react'
 import { Button } from '@/components/ui'
-import { Upload, Download, FileText, CheckCircle, Settings } from 'lucide-react'
+import { Upload, Download, FileText, CheckCircle, Settings, AlertCircle } from 'lucide-react'
 import { SIGNATURES } from '@/lib/signatures'
 
 type Position = 'left' | 'right' | 'center'
@@ -70,34 +70,28 @@ export default function SignatureTool() {
     const gap  = 6
     const totalPairW = sigW * 2 + gap
 
-    // ── EVERY PAGE EXCEPT LAST: Kanchan + Pranav side by side at bottom ──
-    // Skip last page (NOC) — no stamps there
-    addLog('Stamping Kanchan + Pranav on every page except last (NOC)…')
+    // ── EVERY PAGE EXCEPT LAST AND WITNESS: Pranav at bottom ──
+    addLog('Stamping Pranav on every page except NOC and Witness page…')
     for (let i = 0; i < total - 1; i++) {
+      if (i === total - 2) continue; // Skip witness page for bottom stamp
+
       const page = pages[i]
       const { width, height } = page.getSize()
 
-      const kDims = kanchanImg.scale(sigW / kanchanImg.width)
-      const pDims = pranavImg.scale(sigW / pranavImg.width)
+      // Increase Pranav size slightly by applying a 1.25 multiplier
+      const pDims = pranavImg.scale((sigW * 1.25) / pranavImg.width)
 
       let startX: number
       if (position === 'left')       startX = margin
-      else if (position === 'right') startX = width - margin - totalPairW
-      else                           startX = (width - totalPairW) / 2
+      else if (position === 'right') startX = width - margin - (sigW * 1.25)
+      else                           startX = (width - (sigW * 1.25)) / 2
 
       const bottomY = margin
 
-      // Kanchan left, Pranav right — side by side
-      page.drawImage(kanchanImg, {
-        x: startX,
-        y: bottomY,
-        width: kDims.width,
-        height: kDims.height,
-        opacity: 0.92,
-      })
+      // Pranav alone
       page.drawImage(pranavImg, {
-        x: startX + sigW + gap,
-        y: bottomY,
+        x: startX - 15, // slightly left
+        y: bottomY + 15, // slightly up
         width: pDims.width,
         height: pDims.height,
         opacity: 0.92,
@@ -123,10 +117,10 @@ export default function SignatureTool() {
       // Witness 1 — Pratik Dey
       // Sits above signature line, which is just below "Witness 1:" label
       const pDims2 = pratikImg.scale(witnessW / pratikImg.width)
-      const w1Y = wh * 0.85 - pDims2.height  // just above the line at 85%
+      const w1Y = wh * 0.63 - pDims2.height  // just above the line at 63%
       witnessPage.drawImage(pratikImg, {
-        x: ww * 0.25,
-        y: w1Y,
+        x: margin + 35, // slightly right (was 20)
+        y: w1Y + 10,    // slightly up (was w1Y)
         width: pDims2.width,
         height: pDims2.height,
         opacity: 0.92,
@@ -135,9 +129,9 @@ export default function SignatureTool() {
       // Witness 2 — Surabhi Dewra
       // Sits above signature line, which is just below "Witness 2:" label
       const sDims = surabhiImg.scale(witnessW / surabhiImg.width)
-      const w2Y = wh * 0.73 - sDims.height  // just above the line at 73%
+      const w2Y = wh * 0.51 - sDims.height + 15 // slightly up
       witnessPage.drawImage(surabhiImg, {
-        x: ww * 0.25,
+        x: margin + 40, // bit more right than Witness 1
         y: w2Y,
         width: sDims.width,
         height: sDims.height,
@@ -154,9 +148,9 @@ export default function SignatureTool() {
 
     // Kanchan Bhatia — sits on her signature line (~45% from bottom)
     const kDimsNoc = kanchanImg.scale(nocSigW / kanchanImg.width)
-    const kNocY = nh * 0.60 - kDimsNoc.height  // just above her line
+    const kNocY = nh * 0.60 - kDimsNoc.height + 15 // slightly up
     nocPage.drawImage(kanchanImg, {
-      x: nw * 0.25,
+      x: margin + 50, // further right
       y: kNocY,
       width: kDimsNoc.width,
       height: kDimsNoc.height,
@@ -164,10 +158,11 @@ export default function SignatureTool() {
     })
 
     // Pranav Bhatia — sits on his signature line (~36% from bottom)
-    const pDimsNoc = pranavImg.scale(nocSigW / pranavImg.width)
-    const pNocY = nh * 0.51 - pDimsNoc.height  // just above his line
+    // Applying the 1.25 multiplier here as well
+    const pDimsNoc = pranavImg.scale((nocSigW * 1.25) / pranavImg.width)
+    const pNocY = nh * 0.51 - pDimsNoc.height + 15 // slightly up
     nocPage.drawImage(pranavImg, {
-      x: nw * 0.25,
+      x: margin + 50, // further right
       y: pNocY,
       width: pDimsNoc.width,
       height: pDimsNoc.height,
@@ -274,9 +269,9 @@ export default function SignatureTool() {
                 <p className="text-sm font-bold text-[#0a0a0a]">Signed — {pageCount} pages</p>
               </div>
               <div className="text-xs text-[#4a5568] mb-3 space-y-0.5">
-                <p>✓ Kanchan Bhatia + Pranav Bhatia — every page (bottom {position})</p>
-                <p>✓ Pratik Dey (Witness 1) — page {pageCount - 1} (2nd last)</p>
-                <p>✓ Surabhi Dewra (Witness 2) — page {pageCount - 1} (2nd last)</p>
+                <p>✓ Pranav Bhatia — every page except witness & NOC (bottom {position})</p>
+                {pageCount >= 2 && <p>✓ Pratik Dey + Surabhi Dewra — page {pageCount - 1} (witness section)</p>}
+                <p>✓ Kanchan Bhatia + Pranav Bhatia — page {pageCount} (NOC)</p>
               </div>
               <Button onClick={downloadResult} className="w-full justify-center">
                 <Download size={13} /> Download Signed PDF
@@ -327,26 +322,14 @@ export default function SignatureTool() {
             <p className="text-xs font-semibold text-[#4a5568] mb-2">Placement</p>
             <div className="space-y-2 text-[10px]">
               {[
-                { label: 'Kanchan Bhatia',  placement: 'Every page — bottom', key: 'kanchan', ok: true },
-                { label: 'Pranav Bhatia',   placement: 'Every page — bottom', key: 'pranav', ok: true },
-                { label: 'Pratik Dey',      placement: '2nd last page only', key: 'pratik', ok: true },
-                { label: 'Surabhi Dewra',   placement: '2nd last page only', key: 'surabhi', ok: true },
+                { label: 'Pranav Bhatia',   placement: 'Every page (except witness) — bottom', key: 'pranav', ok: true },
+                { label: 'Pratik Dey',      placement: 'Witness page only', key: 'pratik', ok: true },
+                { label: 'Surabhi Dewra',   placement: 'Witness page only', key: 'surabhi', ok: true },
               ].map(s => (
-                <div key={s.label} className="flex items-center gap-2">
-                  {s.ok && s.key ? (
-                    <img
-                      src={`data:image/png;base64,${SIGNATURES[s.key as keyof typeof SIGNATURES]}`}
-                      alt={s.label}
-                      className="h-6 w-14 object-contain bg-[#f4f6f8] rounded border border-[#e0e4e8]"
-                    />
-                  ) : (
-                    <div className="h-6 w-14 bg-amber-50 border border-amber-200 rounded flex items-center justify-center">
-                      <span className="text-[8px] text-amber-500">Missing</span>
-                    </div>
-                  )}
-                  <div>
-                    <p className="font-bold text-[#0a0a0a]">{s.label}</p>
-                    <p className="text-[#8e9aab]">{s.placement}</p>
+                <div key={s.key} className="flex items-center justify-between bg-[#fbfbfb] border border-[#f0f0f0] p-1.5 rounded">
+                  <div className="flex items-center gap-1.5">
+                    {s.ok ? <CheckCircle size={10} className="text-[#38a169]" /> : <AlertCircle size={10} className="text-[#e53e3e]" />}
+                    <span className="font-medium text-[#1a202c]">{s.label}</span>
                   </div>
                 </div>
               ))}
