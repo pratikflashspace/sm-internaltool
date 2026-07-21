@@ -70,10 +70,10 @@ export default function SignatureTool() {
     const gap  = 6
     const totalPairW = sigW * 2 + gap
 
-    // ── EVERY PAGE EXCEPT LAST AND WITNESS: Pranav at bottom ──
-    addLog('Stamping Pranav on every page except NOC and Witness page…')
-    for (let i = 0; i < total - 1; i++) {
-      if (i === total - 2) continue; // Skip witness page for bottom stamp
+    // ── EVERY PAGE EXCEPT LAST 2 PAGES: Pranav at bottom ──
+    // Last 2 pages = witness page + NOC page — no bottom stamp on those
+    addLog('Stamping Pranav on every page except last 2 pages…')
+    for (let i = 0; i < total - 2; i++) {
 
       const page = pages[i]
       const { width, height } = page.getSize()
@@ -102,7 +102,7 @@ export default function SignatureTool() {
     // Pratik Dey (Witness 1) and Surabhi Dewra (Witness 2)
     // Placed on top of the signature lines in the witnesses block
     if (total >= 2) {
-      addLog(`Stamping witness signatures on page ${total - 1} (2nd last)…`)
+      addLog(`Stamping witness signatures on 2nd last page…`)
       const witnessPage = pages[total - 2]
       const { width: ww, height: wh } = witnessPage.getSize()
 
@@ -110,9 +110,21 @@ export default function SignatureTool() {
       const surabhiImg = await pdfDoc.embedPng(base64ToBytes(SIGNATURES.surabhi))
 
       // From screenshot analysis:
+      // Licensor (Pranav) signature is below the top paragraph (~80% from bottom)
       // Witness 1 (Pratik) signature line is ~72% from bottom of page
       // Witness 2 (Surabhi) signature line is ~57% from bottom of page
       // Signatures sit ON the line (slightly above it)
+
+      // Licensor — Pranav Bhatia (Top of page below paragraph)
+      const pDims3 = pranavImg.scale((sigW * 1.25) / pranavImg.width)
+      const licensorY = wh * 0.76 - pDims3.height + 55 // moved up ~55px
+      witnessPage.drawImage(pranavImg, {
+        x: margin + 50,
+        y: licensorY,
+        width: pDims3.width,
+        height: pDims3.height,
+        opacity: 0.92,
+      })
 
       // Witness 1 — Pratik Dey
       // Sits above signature line, which is just below "Witness 1:" label
@@ -270,7 +282,7 @@ export default function SignatureTool() {
               </div>
               <div className="text-xs text-[#4a5568] mb-3 space-y-0.5">
                 <p>✓ Pranav Bhatia — every page except witness & NOC (bottom {position})</p>
-                {pageCount >= 2 && <p>✓ Pratik Dey + Surabhi Dewra — page {pageCount - 1} (witness section)</p>}
+                {pageCount >= 2 && <p>✓ Pranav Bhatia + Pratik Dey + Surabhi Dewra — page {pageCount - 1} (witness section)</p>}
                 <p>✓ Kanchan Bhatia + Pranav Bhatia — page {pageCount} (NOC)</p>
               </div>
               <Button onClick={downloadResult} className="w-full justify-center">
@@ -322,7 +334,7 @@ export default function SignatureTool() {
             <p className="text-xs font-semibold text-[#4a5568] mb-2">Placement</p>
             <div className="space-y-2 text-[10px]">
               {[
-                { label: 'Pranav Bhatia',   placement: 'Every page (except witness) — bottom', key: 'pranav', ok: true },
+                { label: 'Pranav Bhatia',   placement: 'All pages (except Witness & NOC) at bottom + Witness (top) + NOC', key: 'pranav', ok: true },
                 { label: 'Pratik Dey',      placement: 'Witness page only', key: 'pratik', ok: true },
                 { label: 'Surabhi Dewra',   placement: 'Witness page only', key: 'surabhi', ok: true },
               ].map(s => (
